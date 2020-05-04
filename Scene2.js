@@ -17,6 +17,8 @@ walls;
 ball;
 player;
 player_2;
+score_P1 = 0
+score_P2 = 0
 
 preload() {
     this.load.image('wall_h', 'assets/wall_horizzontal.png')
@@ -38,6 +40,9 @@ create() {
     this.key_A = this.input.keyboard.addKey('A');
     this.key_D = this.input.keyboard.addKey('D');
 
+    this.score1 = this.add.text(200, 100, 'Score: ' + this.score_P1, { fontFamily: 'Georgia, "Goudy Bookletter 1911", Times, serif' });
+    this.score2 = this.add.text(600, 100, 'Score: ' + this.score_P2, { fontFamily: 'Georgia, "Goudy Bookletter 1911", Times, serif' });
+
     this.walls = this.physics.add.staticGroup();
     this.walls.create(400, 20, 'wall_h');
     this.walls.create(20, 300, 'wall_v');
@@ -45,10 +50,9 @@ create() {
     this.walls.create(400, 450, 'wall_m');
 
     this.floors = this.physics.add.staticGroup();
-    this.floors.create(220, 580, 'floor_left');
-    this.floors.create(580, 580, 'floor_right');
 
-    
+    this.floorL = this.floors.create(220, 580, 'floor_left');
+    this.floorR = this.floors.create(580, 580, 'floor_right');
     
     // Player 1
     this.player = this.physics.add.image(100, 450, 'player1');
@@ -79,6 +83,10 @@ create() {
     this.physics.add.collider(this.player_2, this.floors)
 
     this.ballStart = this.time.delayedCall(2000, this.BallStart, [], this)
+
+    this.physics.add.overlap(this.ball, this.floorL, this.SetPointToPlayer1, null, this);
+    this.physics.add.overlap(this.ball, this.floorR, this.SetPointToPlayer2, null, this);
+    
 }
 
 update ()
@@ -93,19 +101,34 @@ update ()
     this.BallAngleBounceP1(rn_x1, rn_y);
     this.BallAngleBounceP2(rn_x2, rn_y);
 
-    this.physics.add.overlap(this.ball, this.floors, this.CheckCollision, [], this);
 }
 
-CheckCollision() {
-    console.log("Collide")
+SetPointToPlayer1() {
+    this.score_P1 += 10
+    this.score1.setText('Score: ' + this.score_P1)
+    this.RestartGame();
+
+}
+
+SetPointToPlayer2() {
+    this.score_P2 += 10
+    this.score2.setText('Score: ' + this.score_P2)
+    this.RestartGame();
 }
 
 BallStart() {
-    let rn_x = Phaser.Math.Between(-160, 160);
+    let rn_x = Phaser.Math.Between(-200, 200);
     let rn_y = Phaser.Math.Between(-250, -500);
 
     this.ball.body.setAllowGravity(true);
     this.ball.setVelocity(rn_x, rn_y)
+}
+
+RestartGame() {
+    this.ball.body.setAllowGravity(false);
+    this.ball.setVelocity(0, 0)
+    this.ball.setPosition(400, 300)
+    this.ballStart = this.time.delayedCall(2000, this.BallStart, [], this)
 }
 
 Player1Input() {
