@@ -1,6 +1,3 @@
-
-
-
 class Scene2 extends Phaser.Scene {
     constructor() {
         super("game");
@@ -20,6 +17,9 @@ player_2;
 score_P1 = 0
 score_P2 = 0
 
+textWin1;
+textWin2;
+
 preload() {
     this.load.image('wall_h', 'assets/wall_horizzontal.png')
     this.load.image('wall_v', 'assets/wall_vertical.png')
@@ -33,15 +33,14 @@ preload() {
 
 }
 
-
 create() {
 
     this.cursors = this.input.keyboard.createCursorKeys();
     this.key_A = this.input.keyboard.addKey('A');
     this.key_D = this.input.keyboard.addKey('D');
 
-    this.score1 = this.add.text(200, 100, 'Score: ' + this.score_P1, { fontFamily: 'Georgia, "Goudy Bookletter 1911", Times, serif' });
-    this.score2 = this.add.text(600, 100, 'Score: ' + this.score_P2, { fontFamily: 'Georgia, "Goudy Bookletter 1911", Times, serif' });
+    this.score1 = this.add.text(200, 100, 'Score: ' + this.score_P1, { fontSize: 24}).setOrigin(.5);
+    this.score2 = this.add.text(600, 100, 'Score: ' + this.score_P2, { fontSize: 24}).setOrigin(.5);
 
     this.walls = this.physics.add.staticGroup();
     this.walls.create(400, 20, 'wall_h');
@@ -84,15 +83,16 @@ create() {
 
     this.ballStart = this.time.delayedCall(2000, this.BallStart, [], this)
 
-    this.physics.add.overlap(this.ball, this.floorL, this.SetPointToPlayer1, null, this);
-    this.physics.add.overlap(this.ball, this.floorR, this.SetPointToPlayer2, null, this);
+    this.physics.add.overlap(this.ball, this.floorR, this.SetPointToPlayer1, null, this);
+    this.physics.add.overlap(this.ball, this.floorL, this.SetPointToPlayer2, null, this);
+    
     
 }
 
 update ()
 {
-    let rn_x1 = Phaser.Math.Between(30, 200);
-    let rn_x2 = Phaser.Math.Between(-200, -30)
+    let rn_x1 = Phaser.Math.Between(30, 400);
+    let rn_x2 = Phaser.Math.Between(-400, -30)
     let rn_y = Phaser.Math.Between(-250, -500);
 
     this.Player1Input();
@@ -100,24 +100,25 @@ update ()
 
     this.BallAngleBounceP1(rn_x1, rn_y);
     this.BallAngleBounceP2(rn_x2, rn_y);
-
 }
 
 SetPointToPlayer1() {
     this.score_P1 += 10
     this.score1.setText('Score: ' + this.score_P1)
+    console.log(this.score_P1)
     this.RestartGame();
-
 }
 
 SetPointToPlayer2() {
     this.score_P2 += 10
     this.score2.setText('Score: ' + this.score_P2)
+    console.log(this.score_P2)
     this.RestartGame();
 }
 
 BallStart() {
-    let rn_x = Phaser.Math.Between(-200, 200);
+
+    let rn_x = Phaser.Math.Between( Phaser.Math.Between(-800, -400) , Phaser.Math.Between(400, 800) );
     let rn_y = Phaser.Math.Between(-250, -500);
 
     this.ball.body.setAllowGravity(true);
@@ -125,10 +126,29 @@ BallStart() {
 }
 
 RestartGame() {
-    this.ball.body.setAllowGravity(false);
-    this.ball.setVelocity(0, 0)
-    this.ball.setPosition(400, 300)
-    this.ballStart = this.time.delayedCall(2000, this.BallStart, [], this)
+
+    if(this.score_P1 < 20 || this.score_P2 < 20)
+    {
+        this.ball.body.setAllowGravity(false);
+        this.ball.setVelocity(0, 0)
+        this.ball.setPosition(400, 300)
+        this.ballStart = this.time.delayedCall(2000, this.BallStart, [], this)
+    }
+
+    if(this.score_P1 >= 20 || this.score_P2 >= 20) {
+        this.ball.destroy();
+        this.scene.pause();
+
+        if(this.score_P1 >= 20) {
+            this.textWin1 = this.add.text(400, 200, `PLAYER 1 WIN`).setOrigin(0.5);
+        }
+        else if(this.score_P2 >= 20) {
+            this.textWin1 = this.add.text(400, 200, `PLAYER 2 WIN`).setOrigin(0.5);
+        }
+
+
+        this.textWin2 = this.add.text(400, 250, "ENTER TO PLAY AGAIN").setOrigin(0.5);
+    }
 }
 
 Player1Input() {
@@ -136,11 +156,11 @@ Player1Input() {
 
     if (this.cursors.left.isDown)
     {
-        this.player.setVelocityX(-160);
+        this.player.setVelocityX(-200);
     }
     else if (this.cursors.right.isDown)
     {
-        this.player.setVelocityX(160);
+        this.player.setVelocityX(200);
     }
 }
 
@@ -162,8 +182,6 @@ BallAngleBounceP1(x, y) {
         this.ball.setVelocityX(x)
         this.ball.setVelocityY(y)
     }
-
-
 }
 
 BallAngleBounceP2(x, y) {

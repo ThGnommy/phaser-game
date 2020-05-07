@@ -3,16 +3,22 @@ class Scene1 extends Phaser.Scene {
         super("mainMenu");
     }
     
-    cursors;
+    enter;
+    text1;
+    timedEvent;
+
+    preload() {
+    }
 
     create() {
-        this.add.text(20, 20, "Loading game...");
-        this.add.text(20, 40, "Press SPACE to load next scene...");
-        this.cursors = this.input.keyboard.createCursorKeys();
+        this.add.text(400, 200, "THE GAME", { fontSize: 32 }).setOrigin(0.5);
+        this.text1 = this.add.text(400, 400, "PRESS ENTER TO START").setOrigin(0.5);
+        this.enter = this.input.keyboard.addKey('ENTER');
+        this.timedEvent = this.time.addEvent({ delay: 500, callback: () => this.text1.visible = !this.text1.visible, callbackScope: this, loop: true });
     }
 
     update () {
-        if(this.cursors.space.isDown) {
+        if(this.enter.isDown) {
             this.scene.start("game")
         }
     }

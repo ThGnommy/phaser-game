@@ -3,13 +3,19 @@ let config = {
     width: 800,
     height: 600,
     physics: {
+
         default: 'arcade',
+
         arcade: {
             gravity: { y: 200 },
             debug: false
-        }
+        },
+
     },
-    scene: [Scene1, Scene2]
+    dom: {
+        createContainer: true
+    },
+    scene: [Scene1, Scene2, Win]
 };
 
 let game = new Phaser.Game(config)
